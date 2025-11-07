@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext"; // Import the provider
-import { ThemeProvider } from "@/components/theme-provider"; // (Assuming you have this from shadcn)
+import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner"; // <-- 1. Import from sonner
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +26,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Wrap everything in the AuthProvider */}
           <AuthProvider>
             {children}
+            <Toaster richColors />
           </AuthProvider>
         </ThemeProvider>
       </body>
