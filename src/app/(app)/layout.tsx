@@ -52,7 +52,7 @@ export default function AppLayout({
             </aside>
 
             {/* --- Main Content Area --- */}
-            <div className="flex flex-col">
+            <div className="flex flex-col h-screen overflow-hidden">
 
                 {/* --- Header --- */}
                 <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:justify-end">
@@ -90,7 +90,9 @@ export default function AppLayout({
                 </header>
 
                 {/* --- Page Content --- */}
-                <main className="flex-1 p-4 md:p-6">
+                {/* Keep the main area full height and let the page component manage internal scrolling.
+                    Remove overflow-auto so the child page can set h-full and inner ScrollArea controls scrolling. */}
+                <main className="flex-1 flex flex-col p-4 md:p-6 h-full">
                     {children}
                 </main>
             </div>

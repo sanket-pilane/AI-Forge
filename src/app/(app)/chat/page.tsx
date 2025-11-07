@@ -8,8 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, Send, User as UserIcon, Bot } from "lucide-react";
 import { auth } from "@/lib/firebase";
-import ReactMarkdown from "react-markdown"; // <-- IMPORT MARKDOWN
-import remarkGfm from "remark-gfm"; // <-- IMPORT GFM PLUGIN
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { motion } from "framer-motion";
 
 // Define the shape of a message
 type Message = {
@@ -18,25 +19,41 @@ type Message = {
 };
 
 export default function ChatPage() {
-    const { user } = useAuth(); // Get the authenticated user
+    const { user } = useAuth();
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Ref for the scroll area viewport
-    const scrollViewportRef = useRef<HTMLDivElement>(null);
+    // --- FIX 1: Correctly reference the ScrollArea root ---
+    const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-    // Auto-scroll to bottom function
+    // --- FIX 1: Updated scroll function ---
     const scrollToBottom = () => {
-        if (scrollViewportRef.current) {
-            scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight;
+        if (!scrollAreaRef.current) return;
+
+        // Radix ScrollArea exposes a Viewport element. Use the data attribute to locate it
+        const viewport = scrollAreaRef.current.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
+        if (viewport) {
+            // Smooth scroll for better UX
+            try {
+                viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" });
+            } catch (e) {
+                // Fallback for environments that don't support options
+                viewport.scrollTop = viewport.scrollHeight;
+            }
         }
     };
 
     // Auto-scroll to bottom when messages change
     useEffect(() => {
-        scrollToBottom();
+        // We wrap this in a 0ms timeout to wait for the DOM to update
+        const timer = setTimeout(() => {
+            scrollToBottom();
+        }, 0);
+
+        // Cleanup the timer
+        return () => clearTimeout(timer);
     }, [messages]);
 
     const handleSubmit = async (e: FormEvent) => {
@@ -45,20 +62,19 @@ export default function ChatPage() {
 
         const userMessage: Message = { role: "user", text: input };
         setMessages((prev) => [...prev, userMessage]);
+        // Give the DOM a tick to render the new message, then scroll the messages viewport
+        setTimeout(() => scrollToBottom(), 50);
         setInput("");
         setIsLoading(true);
         setError(null);
 
         try {
-            // 1. Get the Firebase Auth token
             const token = await user.getIdToken();
-
-            // 2. Call our backend API
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`, // Send the token
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ prompt: input }),
             });
@@ -69,10 +85,9 @@ export default function ChatPage() {
             }
 
             const data = await res.json();
-
-            // 3. Add AI response to state
             const modelMessage: Message = { role: "model", text: data.text };
             setMessages((prev) => [...prev, modelMessage]);
+
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -81,62 +96,62 @@ export default function ChatPage() {
     };
 
     return (
-        <div className="flex h-full flex-col"> {/* <-- 1. LAYOUT FIX HERE */}
+        // Ensure this page fills the available height so the ScrollArea can take remaining space
+        <div className="flex h-full flex-col">
             <h1 className="text-2xl font-semibold mb-4">Chat Generator</h1>
-
-            {/* Chat Messages Area */}
-            <ScrollArea className="flex-1 pr-4" viewportRef={scrollViewportRef}>
-                <div className="flex flex-col gap-4">
+            {/* ScrollArea consumes remaining space so the form stays pinned to the bottom */}
+            <ScrollArea className="flex-1 pr-4 overflow-hidden" ref={scrollAreaRef}>
+                <div className="flex flex-col gap-4 pb-4">
                     {messages.map((msg, index) => (
-                        <div
+                        <motion.div
                             key={index}
+                            // Add animation props
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
                             className={`flex items-start gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"
                                 }`}
                         >
-                            {/* Avatar for Model */}
                             {msg.role === "model" && (
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
                                 </Avatar>
                             )}
 
-                            {/* Message Bubble */}
                             <div
                                 className={`max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 ${msg.role === "user"
                                     ? "bg-primary text-primary-foreground"
                                     : "bg-muted"
                                     }`}
                             >
-                                {/* --- 2. MARKDOWN RENDERING --- */}
                                 {msg.role === "user" ? (
                                     <p className="whitespace-pre-wrap text-sm">{msg.text}</p>
                                 ) : (
-                                    <ReactMarkdown
-                                        className="prose prose-sm dark:prose-invert max-w-none"
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            // Custom renderer for links to open in a new tab
-                                            a: ({ node, ...props }) => (
-                                                <a {...props} target="_blank" rel="noopener noreferrer" />
-                                            ),
-                                        }}
-                                    >
-                                        {msg.text}
-                                    </ReactMarkdown>
+                                    // --- FIX 2: Wrap ReactMarkdown in a div with prose classes ---
+                                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                a: ({ node, ...props }) => (
+                                                    <a {...props} target="_blank" rel="noopener noreferrer" />
+                                                ),
+                                            }}
+                                        >
+                                            {msg.text}
+                                        </ReactMarkdown>
+                                    </div>
                                 )}
-                                {/* --- END MARKDOWN RENDERING --- */}
                             </div>
 
-                            {/* Avatar for User */}
                             {msg.role === "user" && (
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback><UserIcon className="h-4 w-4" /></AvatarFallback>
                                 </Avatar>
                             )}
-                        </div>
+                        </motion.div>
+
                     ))}
 
-                    {/* Loading Spinner */}
                     {isLoading && (
                         <div className="flex items-start gap-3">
                             <Avatar className="h-8 w-8">
@@ -148,7 +163,6 @@ export default function ChatPage() {
                         </div>
                     )}
 
-                    {/* Error Message */}
                     {error && (
                         <div className="flex justify-start">
                             <div className="rounded-lg bg-destructive/20 p-3 text-destructive text-sm">
@@ -159,8 +173,7 @@ export default function ChatPage() {
                 </div>
             </ScrollArea>
 
-            {/* Chat Input Form */}
-            <form onSubmit={handleSubmit} className="mt-4 flex items-center gap-2">
+            <form onSubmit={handleSubmit} className="mt-4 flex items-center gap-2 shrink-0 mb-4">
                 <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
