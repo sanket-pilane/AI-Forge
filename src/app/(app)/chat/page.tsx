@@ -12,6 +12,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { motion } from "framer-motion";
 
+
 // Define the shape of a message
 type Message = {
     role: "user" | "model";
