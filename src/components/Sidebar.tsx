@@ -15,6 +15,7 @@ import {
     Image as ImageIcon,
     Settings,
     Bot,
+    Wand2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +23,8 @@ import { cn } from "@/lib/utils";
 const navItems = [
     { name: "Chat", href: "/chat", icon: MessageSquare },
     { name: "Code", href: "/code", icon: Code },
-    { name: "Image", href: "/image", icon: ImageIcon },
+    { name: "Image Analyzer", href: "/image", icon: ImageIcon },
+    { name: " Prompt Optimizer", href: "/optimizer", icon: Wand2 },
 ];
 
 interface SidebarProps {
