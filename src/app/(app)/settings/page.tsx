@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ThemeToggle } from "@/components/ThemeToggle"; // <-- 1. IMPORT
 
 export default function SettingsPage() {
     return (
@@ -23,17 +23,20 @@ export default function SettingsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                    {/* --- 2. ADD THE THEME TOGGLE HERE --- */}
                     <div className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                             <Label htmlFor="dark-mode" className="text-base">
-                                Dark Mode
+                                Theme
                             </Label>
                             <p className="text-sm text-muted-foreground">
-                                Toggle dark and light theme.
+                                Select your preferred application theme.
                             </p>
                         </div>
-                        <Switch id="dark-mode" />
+                        <ThemeToggle />
                     </div>
+                    {/* --- END OF NEW COMPONENT --- */}
+
                     <div className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                             <Label htmlFor="notifications" className="text-base">
