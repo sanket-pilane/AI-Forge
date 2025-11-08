@@ -16,6 +16,7 @@ import {
     Settings,
     Bot,
     Wand2,
+    SquarePen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +52,38 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                         </span>
                     </Link>
                 </div>
+                <div className="p-4 bg-gray-900">
+                    <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>
+                            <Button
+                                asChild
+                                variant="outline" // Primary button style
+                                className={cn(
+                                    "w-full justify-start",
+                                    isCollapsed && "justify-center"
+                                )}
+                            >
+                                <Link href="/chat">
+                                    <SquarePen className="h-4 w-4" />
+                                    <span
+                                        className={cn(
+                                            "ml-2 transition-all",
+                                            isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                                        )}
+                                    >
+                                        New Chat
+                                    </span>
+                                </Link>
+                            </Button>
+                        </TooltipTrigger>
+                        {isCollapsed && (
+                            <TooltipContent side="right" sideOffset={5} className="bg-black text-white">
+                                New Chat
+                            </TooltipContent>
+                        )}
+                    </Tooltip>
+                </div>
+
 
                 {/* Main Nav Items */}
                 <nav className="flex-1 space-y-2 px-4 py-6">
