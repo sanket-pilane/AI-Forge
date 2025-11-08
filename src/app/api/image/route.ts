@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin";
+import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { generateTitle } from "@/lib/gemini-server-utils";
+import admin from "firebase-admin";
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 if (!API_KEY) throw new Error("GOOGLE_API_KEY is not set");
@@ -22,7 +24,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const token = authorization.split("Bearer ")[1];
-    await adminAuth.verifyIdToken(token);
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
 
     // 2. Get prompt and image
     const { image, prompt } = await req.json();
@@ -36,11 +39,39 @@ export async function POST(req: NextRequest) {
     // 3. Convert image and call Gemini
     const imagePart = dataUrlToGenerativePart(image);
     const result = await model.generateContent([prompt, imagePart]);
-    const response = result.response;
-    const text = response.text();
+    const analysisResult = result.response.text();
 
-    // 4. Send analysis back
-    return NextResponse.json({ text });
+    // 4. Generate title
+    let title = await generateTitle(prompt);
+    if (!title) {
+      const date = new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      title = `Image Analysis - ${date}`;
+    }
+
+    // 5. Save to Firestore (without the image data)
+    const timestamp = admin.firestore.FieldValue.serverTimestamp();
+    const newHistoryRef = adminDb
+      .collection(`users/${userId}/imageHistory`)
+      .doc();
+
+    await newHistoryRef.set({
+      chatId: newHistoryRef.id,
+      userId: userId,
+      title: title,
+      prompt: prompt,
+      analysisResult: analysisResult,
+      timestamp: timestamp,
+      type: "image",
+    });
+
+    // 6. Send analysis back
+    return NextResponse.json({
+      text: analysisResult,
+      chatId: newHistoryRef.id,
+    });
   } catch (error: any) {
     console.error("Error in image analysis API route:", error);
     return NextResponse.json(

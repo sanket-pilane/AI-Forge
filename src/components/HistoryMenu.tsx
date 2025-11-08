@@ -16,7 +16,6 @@ import { db } from "@/lib/firebase";
 import {
     collection,
     query,
-    where,
     orderBy,
     limit,
     onSnapshot,
@@ -76,7 +75,7 @@ export function HistoryMenu({ type }: HistoryMenuProps) {
     }, [user, type]);
 
     const handleLoadChat = (id: string) => {
-        // Navigate to the same page with a query param
+        // Navigate to the correct page with the chat ID
         router.push(`/${type}?id=${id}`);
     };
 
@@ -101,9 +100,10 @@ export function HistoryMenu({ type }: HistoryMenuProps) {
                         <DropdownMenuItem
                             key={item.chatId}
                             onSelect={() => handleLoadChat(item.chatId)}
-                            className="truncate cursor-pointer"
+                            className="cursor-pointer"
                         >
-                            {item.title}
+                            {/* This span handles the truncation */}
+                            <span className="block truncate">{item.title}</span>
                         </DropdownMenuItem>
                     ))
                 ) : (
@@ -111,7 +111,8 @@ export function HistoryMenu({ type }: HistoryMenuProps) {
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="cursor-pointer">
-                    <Link href="/history">View All History</Link>
+                    {/* Updated link to pre-filter the history page */}
+                    <Link href={`/history?type=${type}`}>View All History</Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

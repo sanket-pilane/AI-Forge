@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin";
+import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { generateTitle } from "@/lib/gemini-server-utils"; // Import our title util
+import admin from "firebase-admin"; // Import admin for FieldValue
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 if (!API_KEY) throw new Error("GOOGLE_API_KEY is not set");
@@ -19,7 +21,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const token = authorization.split("Bearer ")[1];
-    await adminAuth.verifyIdToken(token);
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
 
     // 2. Get prompt
     const { prompt } = await req.json();
@@ -33,12 +36,38 @@ export async function POST(req: NextRequest) {
     // 3. Call Gemini
     const fullPrompt = `${SYSTEM_PROMPT}\n\nUser Request: ${prompt}`;
     const result = await model.generateContent(fullPrompt);
-    const response = result.response;
-    const text = response.text();
+    const generatedCode = result.response.text();
 
-    // 4. Send back the code
+    // 4. Generate title
+    let title = await generateTitle(prompt);
+    if (!title) {
+      const date = new Date().toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+      title = `New Code - ${date}`;
+    }
+
+    // 5. Save to Firestore
+    const timestamp = admin.firestore.FieldValue.serverTimestamp();
+    const newHistoryRef = adminDb
+      .collection(`users/${userId}/codeHistory`)
+      .doc();
+
+    await newHistoryRef.set({
+      chatId: newHistoryRef.id,
+      userId: userId,
+      title: title,
+      prompt: prompt,
+      generatedCode: generatedCode,
+      timestamp: timestamp,
+      type: "code",
+    });
+
+    // 6. Send back code and new ID
     return NextResponse.json({
-      code: text,
+      code: generatedCode,
+      chatId: newHistoryRef.id,
     });
   } catch (error) {
     console.error("Error in code API route:", error);

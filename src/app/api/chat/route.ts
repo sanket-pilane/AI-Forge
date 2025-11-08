@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin"; // Only need adminAuth
+import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { generateTitle } from "@/lib/gemini-server-utils"; // Import our new util
+import admin from "firebase-admin"; // Import admin for FieldValue
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 if (!API_KEY) throw new Error("GOOGLE_API_KEY is not set");
@@ -16,10 +18,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const token = authorization.split("Bearer ")[1];
-    await adminAuth.verifyIdToken(token);
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
 
-    // 2. Get prompt
-    const { prompt } = await req.json();
+    // 2. Get prompt and optional chatId
+    const { prompt, chatId } = await req.json();
     if (!prompt) {
       return NextResponse.json(
         { error: "Prompt is required" },
@@ -27,14 +30,65 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Call Gemini
+    // 3. Generate chat response
+    const userMessage = { role: "user", text: prompt };
     const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+    const modelMessage = { role: "model", text: result.response.text() };
 
-    // 4. Send response
+    let currentChatId = chatId;
+    const timestamp = admin.firestore.FieldValue.serverTimestamp(); // Correct admin syntax
+
+    // 4. Save to Firestore using the Admin SDK
+    if (!currentChatId) {
+      // --- Create new chat ---
+      // adminDb is the Admin Firestore instance; use collection/doc chaining
+      const newChatRef = adminDb
+        .collection("users")
+        .doc(userId)
+        .collection("chatHistory")
+        .doc();
+      currentChatId = newChatRef.id;
+
+      // 4a. Generate "cool" title
+      let title = await generateTitle(prompt);
+      if (!title) {
+        // Fallback title
+        const date = new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+        title = `New Chat - ${date}`;
+      }
+
+      await newChatRef.set({
+        chatId: currentChatId,
+        userId: userId,
+        title: title, // Use generated title
+        timestamp: timestamp,
+        type: "chat",
+        messages: [userMessage, modelMessage],
+      });
+    } else {
+      // --- Update existing chat ---
+      const chatRef = adminDb
+        .collection("users")
+        .doc(userId)
+        .collection("chatHistory")
+        .doc(currentChatId);
+
+      await chatRef.update({
+        messages: admin.firestore.FieldValue.arrayUnion(
+          userMessage,
+          modelMessage
+        ),
+        timestamp: timestamp,
+      });
+    }
+
+    // 5. Send response
     return NextResponse.json({
-      text,
+      text: modelMessage.text,
+      chatId: currentChatId, // Send the ID back
     });
   } catch (error) {
     console.error("Error in chat API route:", error);

@@ -113,13 +113,14 @@ export default function ChatPage() {
 
         try {
             const token = await user.getIdToken();
+            // Call the smart API
             const res = await fetch("/api/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ prompt: currentInput }),
+                body: JSON.stringify({ prompt: currentInput, chatId: currentChatId }),
             });
 
             if (!res.ok) {
@@ -130,31 +131,13 @@ export default function ChatPage() {
             const data = await res.json();
             const modelMessage: Message = { role: "model", text: data.text };
 
-            if (!currentChatId) {
-                const newChatRef = doc(collection(db, `users/${user.uid}/chatHistory`));
-                const title = currentInput.length > 40 ? currentInput.substring(0, 40) + "..." : currentInput;
-
-                await setDoc(newChatRef, {
-                    chatId: newChatRef.id,
-                    userId: user.uid,
-                    title: title,
-                    timestamp: serverTimestamp(),
-                    type: "chat",
-                    messages: [userMessage, modelMessage],
-                });
-
-                setCurrentChatId(newChatRef.id);
-                router.push(`/chat?id=${newChatRef.id}`, { scroll: false });
-            } else {
-                const chatRef = doc(db, `users/${user.uid}/chatHistory`, currentChatId);
-                await updateDoc(chatRef, {
-                    messages: arrayUnion(userMessage, modelMessage),
-                    timestamp: serverTimestamp(),
-                });
-            }
-
+            // We just update the UI state. The server handled all saving.
             setMessages((prev) => [...prev, modelMessage]);
 
+            if (data.chatId && !currentChatId) {
+                setCurrentChatId(data.chatId);
+                router.push(`/chat?id=${data.chatId}`, { scroll: false });
+            }
         } catch (err: any) {
             setError(err.message);
             setMessages((prev) => prev.filter((msg) => msg.text !== currentInput));
