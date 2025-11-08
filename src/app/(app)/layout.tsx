@@ -1,17 +1,20 @@
 "use client";
 
+import { useState } from "react"; // Import useState
 import { useAuth } from "@/hooks/useAuth";
 import { redirect } from "next/navigation";
-import { Loader2, Bot, Menu } from "lucide-react";
-import { User, signOut } from "firebase/auth";
+import { Loader2, Menu } from "lucide-react";
+import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/Sidebar";
+import { UserMenu } from "@/components/UserMenu"; // Import UserMenu
 import {
     Sheet,
     SheetContent,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 export default function AppLayout({
     children,
@@ -19,6 +22,8 @@ export default function AppLayout({
     children: React.ReactNode;
 }) {
     const { user, loading } = useAuth();
+    // State for sidebar collapse
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const handleLogout = async () => {
         await signOut(auth);
@@ -37,62 +42,58 @@ export default function AppLayout({
     }
 
     return (
-        // Main grid: Sidebar (desktop) + Main Content (header + page)
-        <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr]">
-
+        <div className="grid min-h-screen w-full md:grid-cols-[auto_1fr]">
             {/* --- Sidebar (Desktop) --- */}
-            <aside className="hidden border-r bg-muted/40 md:block">
-                <div className="flex h-full max-h-screen flex-col py-6">
-                    <div className="flex items-center px-6 pb-4">
-                        <Bot className="h-6 w-6" />
-                        <h1 className="ml-2 text-lg font-semibold">AI Forge</h1>
-                    </div>
-                    <Sidebar />
-                </div>
+            <aside
+                className={cn(
+                    "hidden border-r bg-muted/40 md:block transition-all duration-300",
+                    isCollapsed ? "w-20" : "w-64" // Dynamic width
+                )}
+            >
+                <Sidebar isCollapsed={isCollapsed} />
             </aside>
 
             {/* --- Main Content Area --- */}
             <div className="flex flex-col h-screen overflow-hidden">
-
                 {/* --- Header --- */}
-                <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 md:justify-end">
+                <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-background px-4">
+                    <div className="flex items-center gap-2">
+                        {/* Desktop Toggle Button */}
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="hidden md:flex" // Only on desktop
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                        >
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Toggle sidebar</span>
+                        </Button>
 
-                    {/* Mobile Menu Button */}
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="shrink-0 md:hidden" // Only on mobile
-                            >
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Toggle navigation menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="p-0 pt-6">
-                            <div className="flex items-center px-6 pb-4">
-                                <Bot className="h-6 w-6" />
-                                <h1 className="ml-2 text-lg font-semibold">AI Forge</h1>
-                            </div>
-                            <Sidebar />
-                        </SheetContent>
-                    </Sheet>
+                        {/* Mobile Menu Button */}
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="shrink-0 md:hidden" // Only on mobile
+                                >
+                                    <Menu className="h-5 w-5" />
+                                    <span className="sr-only">Toggle navigation menu</span>
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="p-0">
+                                {/* Mobile sidebar is always "expanded" */}
+                                <Sidebar isCollapsed={false} />
+                            </SheetContent>
+                        </Sheet>
+                    </div>
 
                     {/* User Menu (right-aligned) */}
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-muted-foreground hidden sm:inline">
-                            {user.email}
-                        </span>
-                        <Button variant="outline" size="sm" onClick={handleLogout}>
-                            Logout
-                        </Button>
-                    </div>
+                    <UserMenu user={user} handleLogout={handleLogout} />
                 </header>
 
                 {/* --- Page Content --- */}
-                {/* Keep the main area full height and let the page component manage internal scrolling.
-                    Remove overflow-auto so the child page can set h-full and inner ScrollArea controls scrolling. */}
-                <main className="flex-1 flex flex-col p-4 md:p-6 h-full">
+                <main className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
                     {children}
                 </main>
             </div>
