@@ -23,9 +23,9 @@ import { cn } from "@/lib/utils";
 // Define our navigation items
 const navItems = [
     { name: "Chat", href: "/chat", icon: MessageSquare },
-    { name: "Code", href: "/code", icon: Code },
+    { name: "Code", "href": "/code", icon: Code },
     { name: "Image Analyzer", href: "/image", icon: ImageIcon },
-    { name: " Prompt Optimizer", href: "/optimizer", icon: Wand2 },
+    { name: "Prompt Optimizer", href: "/optimizer", icon: Wand2 },
 ];
 
 interface SidebarProps {
@@ -35,11 +35,18 @@ interface SidebarProps {
 export function Sidebar({ isCollapsed }: SidebarProps) {
     const pathname = usePathname();
 
+    // Applied "grey black" background and light text
+    const sidebarBg = "bg-gray-950 text-gray-100";
+
+    // Class for full-width link content and vertical alignment
+    const linkClasses = "w-full flex items-center";
+
     return (
         <TooltipProvider>
-            <div className="flex h-full flex-col">
+            <div className={cn("flex h-full flex-col", sidebarBg)}>
+
                 {/* Logo Section */}
-                <div className="flex h-16 items-center border-b px-6">
+                <div className="flex h-16 items-center border-b border-gray-800 px-6">
                     <Link href="/" className="flex items-center gap-2 font-semibold">
                         <Bot className="h-6 w-6" />
                         <span
@@ -52,22 +59,26 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                         </span>
                     </Link>
                 </div>
-                <div className="p-4 bg-gray-900">
+
+                {/* New Chat Button */}
+                <div className="p-4">
                     <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>
                             <Button
                                 asChild
-                                variant="outline" // Primary button style
+                                variant="outline"
                                 className={cn(
-                                    "w-full justify-start",
-                                    isCollapsed && "justify-center"
+                                    "w-full transition-all duration-300 h-10",
+                                    // Button alignment
+                                    isCollapsed ? "justify-center" : "justify-start"
                                 )}
                             >
-                                <Link href="/chat">
+                                {/* Link ensures content is flex and centers itself within the button */}
+                                <Link href="/chat" className={cn(linkClasses, isCollapsed ? "justify-center" : "justify-start")}>
                                     <SquarePen className="h-4 w-4" />
                                     <span
                                         className={cn(
-                                            "ml-2 transition-all",
+                                            "ml-2 transition-all duration-300 whitespace-nowrap overflow-hidden",
                                             isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
                                         )}
                                     >
@@ -77,7 +88,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                             </Button>
                         </TooltipTrigger>
                         {isCollapsed && (
-                            <TooltipContent side="right" sideOffset={5} className="bg-black text-white">
+                            <TooltipContent side="right" sideOffset={5} className="bg-gray-700 text-white">
                                 New Chat
                             </TooltipContent>
                         )}
@@ -94,15 +105,17 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                     asChild
                                     variant={pathname.startsWith(item.href) ? "secondary" : "ghost"}
                                     className={cn(
-                                        "w-full justify-start",
-                                        isCollapsed && "justify-center"
+                                        "w-full transition-all duration-300 h-10",
+                                        // Button alignment
+                                        isCollapsed ? "justify-center p-0" : "justify-start"
                                     )}
                                 >
-                                    <Link href={item.href}>
+                                    {/* Link ensures content is flex and centers itself within the button */}
+                                    <Link href={item.href} className={cn(linkClasses, isCollapsed ? "justify-center" : "justify-start")}>
                                         <item.icon className="h-4 w-4" />
                                         <span
                                             className={cn(
-                                                "ml-2 transition-all",
+                                                "ml-2 transition-all duration-300 whitespace-nowrap overflow-hidden",
                                                 isCollapsed ? "w-0 opacity-0 " : "w-auto opacity-100"
                                             )}
                                         >
@@ -112,7 +125,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                 </Button>
                             </TooltipTrigger>
                             {isCollapsed && (
-                                <TooltipContent side="right" sideOffset={5}>
+                                <TooltipContent side="right" sideOffset={5} className="bg-gray-700 text-white">
                                     {item.name}
                                 </TooltipContent>
                             )}
@@ -128,15 +141,17 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                 asChild
                                 variant={pathname.startsWith("/settings") ? "secondary" : "ghost"}
                                 className={cn(
-                                    "w-full justify-start",
-                                    isCollapsed && "justify-center"
+                                    "w-full transition-all duration-300 h-10",
+                                    // Button alignment
+                                    isCollapsed ? "justify-center" : "justify-start"
                                 )}
                             >
-                                <Link href="/settings">
+                                {/* Link ensures content is flex and centers itself within the button */}
+                                <Link href="/settings" className={cn(linkClasses, isCollapsed ? "justify-center" : "justify-start")}>
                                     <Settings className="h-4 w-4" />
                                     <span
                                         className={cn(
-                                            "ml-2 transition-all",
+                                            "ml-2 transition-all duration-300 whitespace-nowrap overflow-hidden",
                                             isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
                                         )}
                                     >
@@ -146,7 +161,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                             </Button>
                         </TooltipTrigger>
                         {isCollapsed && (
-                            <TooltipContent side="right" sideOffset={5}>
+                            <TooltipContent side="right" sideOffset={5} className="bg-gray-700 text-white">
                                 Settings
                             </TooltipContent>
                         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react"; // 1. Import useEffect
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,10 +21,18 @@ import { updateProfile } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { toast } from "sonner";
 
+// 2. Define the stats shape
+type UsageStats = {
+    chatCount: number;
+    codeCount: number;
+    imageCount: number;
+    optimizerCount: number;
+};
+
 export default function ProfilePage() {
     const { user } = useAuth();
 
-    // State for the form
+    // Form state
     const [displayName, setDisplayName] = useState(user?.displayName || "");
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(
@@ -32,18 +40,45 @@ export default function ProfilePage() {
     );
     const [isLoading, setIsLoading] = useState(false);
 
-    // --- FIX 1: SYNC STATE WITH AUTH USER ---
-    // This useEffect ensures that when the user object loads or changes,
-    // the form state is updated to match.
+    // 3. State for stats
+    const [stats, setStats] = useState<UsageStats | null>(null);
+    const [isStatsLoading, setIsStatsLoading] = useState(true);
+
+    // Effect to sync form state with auth user
     useEffect(() => {
         if (user) {
             setDisplayName(user.displayName || "");
             setPhotoPreview(user.photoURL || null);
         }
-    }, [user]); // This dependency array is crucial
-    // --- END OF FIX 1 ---
+    }, [user]);
 
-    // Format "Member Since" date
+    // 4. New Effect to fetch user stats
+    useEffect(() => {
+        if (user) {
+            const fetchStats = async () => {
+                setIsStatsLoading(true);
+                try {
+                    const token = await user.getIdToken();
+                    const res = await fetch("/api/user-stats", {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    if (!res.ok) throw new Error("Failed to fetch stats");
+                    const data = await res.json();
+                    setStats(data);
+                } catch (error) {
+                    console.error(error);
+                    toast.error("Could not load usage stats.");
+                } finally {
+                    setIsStatsLoading(false);
+                }
+            };
+            fetchStats();
+        }
+    }, [user]); // Re-fetch if user changes
+
+    // ... (memberSince, userInitials, handlePhotoChange, handleSaveProfile) ...
     const memberSince = user?.metadata.creationTime
         ? new Date(user.metadata.creationTime).toLocaleDateString("en-US", {
             month: "long",
@@ -54,50 +89,37 @@ export default function ProfilePage() {
     const userInitials =
         user?.email?.substring(0, 2).toUpperCase() || <User className="h-5 w-5" />;
 
-    // Handle new photo selection
     const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setPhotoFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
-                // This callback sets the preview
                 setPhotoPreview(reader.result as string);
             };
             reader.readAsDataURL(file);
         }
     };
 
-    // Handle profile save
     const handleSaveProfile = async (e: FormEvent) => {
         e.preventDefault();
-        if (!user) return; // Guard clause
-
-        // --- FIX 2: CAPTURE STABLE UID ---
-        // Get the uid *before* any async operations
+        if (!user) return;
         const uid = user.uid;
-        // --- END OF FIX 2 ---
-
         setIsLoading(true);
-        let newPhotoURL = user.photoURL; // Start with the existing URL
+        let newPhotoURL = user.photoURL;
 
         try {
-            // 1. (If exists) Upload new photo to Firebase Storage
             if (photoFile) {
                 const storageRef = ref(storage, `avatars/${uid}`);
                 await uploadBytes(storageRef, photoFile);
                 newPhotoURL = await getDownloadURL(storageRef);
             }
 
-            // 2. Update Firebase Authentication profile
-            // We pass the `user` object directly as required by updateProfile
             await updateProfile(user, {
                 displayName: displayName,
                 photoURL: newPhotoURL,
             });
 
-            // 3. Update Firestore 'users' document
-            // We use the stable `uid` we captured earlier
             const userDocRef = doc(db, "users", uid);
             await setDoc(
                 userDocRef,
@@ -114,7 +136,6 @@ export default function ProfilePage() {
             console.error("Error updating profile:", error);
             toast.error("Failed to update profile", { description: error.message });
         } finally {
-
             setIsLoading(false);
         }
     };
@@ -219,21 +240,41 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    {/* Placeholder for Usage Stats */}
+                    {/* --- 5. UPDATED: Usage Stats Card --- */}
                     <Card>
                         <CardHeader>
                             <CardTitle>Usage Summary</CardTitle>
-                            <CardDescription>(Placeholder for future metrics)</CardDescription>
+                            <CardDescription>Your activity across AI Forge.</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                            <div className="flex justify-between text-sm">
-                                <p className="font-medium">Total Chats Created</p>
-                                <p className="text-muted-foreground">--</p>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <p className="font-medium">Last Active</p>
-                                <p className="text-muted-foreground">--</p>
-                            </div>
+                        <CardContent>
+                            {isStatsLoading ? (
+                                <div className="flex justify-center p-4">
+                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                </div>
+                            ) : stats ? (
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-sm">
+                                        <p className="font-medium">Total Chats</p>
+                                        <p className="text-muted-foreground">{stats.chatCount}</p>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <p className="font-medium">Code Generations</p>
+                                        <p className="text-muted-foreground">{stats.codeCount}</p>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <p className="font-medium">Image Analyses</p>
+                                        <p className="text-muted-foreground">{stats.imageCount}</p>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <p className="font-medium">Prompts Optimized</p>
+                                        <p className="text-muted-foreground">{stats.optimizerCount}</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    Could not load stats.
+                                </p>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
