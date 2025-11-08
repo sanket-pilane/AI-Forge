@@ -8,8 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, Send, User as UserIcon, Bot } from "lucide-react";
-import { db } from "@/lib/firebase"; // <-- FIX 1: Import db, not auth
-import { // <-- FIX 2: Add all missing firestore imports
+import { db } from "@/lib/firebase";
+import {
     doc,
     getDoc,
     setDoc,
@@ -22,6 +22,8 @@ import ReactMarkdown from "react-markdown";
 import { HistoryMenu } from "@/components/HistoryMenu";
 import remarkGfm from "remark-gfm";
 import { motion } from "framer-motion";
+import Lottie from "lottie-react"; // <-- 1. IMPORT LOTTIE
+import emptyAnimation from "@/assets/animations/empty.json"; // <-- 2. IMPORT ANIMATION
 
 // Define the shape of a message
 type Message = {
@@ -44,7 +46,8 @@ export default function ChatPage() {
 
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-    // Your robust scrollToBottom function
+    // --- Your existing functions (scrollToBottom, useEffects, handleSubmit) ---
+    // ... (no changes needed to these functions) ...
     const scrollToBottom = () => {
         if (!scrollAreaRef.current) return;
         const viewport = scrollAreaRef.current.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
@@ -57,7 +60,6 @@ export default function ChatPage() {
         }
     };
 
-    // Your useEffect for scrolling
     useEffect(() => {
         const timer = setTimeout(() => {
             scrollToBottom();
@@ -65,7 +67,6 @@ export default function ChatPage() {
         return () => clearTimeout(timer);
     }, [messages]);
 
-    // useEffect to load chat history from URL
     useEffect(() => {
         const chatIdFromUrl = searchParams.get("id");
 
@@ -93,13 +94,11 @@ export default function ChatPage() {
             };
             fetchChatHistory();
         } else if (!chatIdFromUrl) {
-            // Clear for new chat
             setCurrentChatId(null);
             setMessages([]);
         }
     }, [searchParams, user, router, currentChatId]);
 
-    // handleSubmit with client-side Firestore logic
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!input.trim() || !user) return;
@@ -131,7 +130,6 @@ export default function ChatPage() {
             const data = await res.json();
             const modelMessage: Message = { role: "model", text: data.text };
 
-            // Firestore Logic
             if (!currentChatId) {
                 const newChatRef = doc(collection(db, `users/${user.uid}/chatHistory`));
                 const title = currentInput.length > 40 ? currentInput.substring(0, 40) + "..." : currentInput;
@@ -174,78 +172,102 @@ export default function ChatPage() {
 
             <ScrollArea className="flex-1 pr-4 overflow-hidden" ref={scrollAreaRef}>
                 <div className="flex flex-col gap-4 pb-4">
+
+                    {/* --- 3. UPDATED RENDER LOGIC --- */}
                     {isHistoryLoading ? (
                         <div className="flex justify-center items-center h-32">
                             <Loader2 className="h-8 w-8 animate-spin" />
                         </div>
                     ) : (
-                        messages.map((msg, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3, ease: "easeOut" }}
-                                className={`flex items-start gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"
-                                    }`}
-                            >
-                                {msg.role === "model" && (
+                        <>
+                            {/* Empty State Animation */}
+                            {!isLoading && !error && messages.length === 0 && (
+                                <div className="flex flex-col items-center justify-center pt-16 text-center">
+                                    <Lottie
+                                        animationData={emptyAnimation}
+                                        loop={true}
+                                        className="w-64 h-64"
+                                    />
+                                    <p className="text-lg text-muted-foreground">
+                                        Start a conversation
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Ask me anything to get started.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Messages List */}
+                            {messages.map((msg, index) => (
+                                <motion.div
+                                    key={index}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeOut" }}
+                                    className={`flex items-start gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"
+                                        }`}
+                                >
+                                    {msg.role === "model" && (
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
+                                        </Avatar>
+                                    )}
+
+                                    <div
+                                        className={`max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 ${msg.role === "user"
+                                            ? "bg-primary text-primary-foreground"
+                                            : "bg-muted"
+                                            }`}
+                                    >
+                                        {msg.role === "user" ? (
+                                            <p className="whitespace-pre-wrap text-sm">{msg.text}</p>
+                                        ) : (
+                                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkGfm]}
+                                                    components={{
+                                                        a: ({ node, ...props }) => (
+                                                            <a {...props} target="_blank" rel="noopener noreferrer" />
+                                                        ),
+                                                    }}
+                                                >
+                                                    {msg.text}
+                                                </ReactMarkdown>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {msg.role === "user" && (
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarFallback><UserIcon className="h-4 w-4" /></AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                </motion.div>
+                            ))}
+
+                            {/* Loading (Typing) Indicator */}
+                            {isLoading && (
+                                <div className="flex items-start gap-3">
                                     <Avatar className="h-8 w-8">
                                         <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
                                     </Avatar>
-                                )}
-
-                                <div
-                                    className={`max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 ${msg.role === "user"
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted"
-                                        }`}
-                                >
-                                    {msg.role === "user" ? (
-                                        <p className="whitespace-pre-wrap text-sm">{msg.text}</p>
-                                    ) : (
-                                        <div className="prose prose-sm dark:prose-invert max-w-none">
-                                            <ReactMarkdown
-                                                remarkPlugins={[remarkGfm]}
-                                                components={{
-                                                    a: ({ node, ...props }) => (
-                                                        <a {...props} target="_blank" rel="noopener noreferrer" />
-                                                    ),
-                                                }}
-                                            >
-                                                {/* <-- FIX 3: Removed stray "Next.js" text */}
-                                                {msg.text}
-                                            </ReactMarkdown>
-                                        </div>
-                                    )}
+                                    <div className="bg-muted rounded-lg p-3">
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                    </div>
                                 </div>
+                            )}
 
-                                {msg.role === "user" && (
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarFallback><UserIcon className="h-4 w-4" /></AvatarFallback>
-                                    </Avatar>
-                                )}
-                            </motion.div>
-                        ))
+                            {/* Error Message */}
+                            {error && (
+                                <div className="flex justify-start">
+                                    <div className="rounded-lg bg-destructive/20 p-3 text-destructive text-sm">
+                                        <p>{error}</p>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
-
-                    {isLoading && (
-                        <div className="flex items-start gap-3">
-                            <Avatar className="h-8 w-8">
-                                <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
-                            </Avatar>
-                            <div className="bg-muted rounded-lg p-3">
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                            </div>
-                        </div>
-                    )}
-
-                    {error && (
-                        <div className="flex justify-start">
-                            <div className="rounded-lg bg-destructive/20 p-3 text-destructive text-sm">
-                                <p>{error}</p>
-                            </div>
-                        </div>
-                    )}
+                    {/* --- END OF UPDATED LOGIC --- */}
                 </div>
             </ScrollArea>
 

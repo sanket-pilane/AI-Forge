@@ -68,7 +68,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                         <span
                                             className={cn(
                                                 "ml-2 transition-all",
-                                                isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                                                isCollapsed ? "w-0 opacity-0 " : "w-auto opacity-100"
                                             )}
                                         >
                                             {item.name}
