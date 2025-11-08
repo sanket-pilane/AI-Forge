@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { HistoryMenu } from "@/components/HistoryMenu";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

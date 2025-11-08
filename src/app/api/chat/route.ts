@@ -1,45 +1,25 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth } from "@/lib/firebase-admin";
+import { adminAuth } from "@/lib/firebase-admin"; // Only need adminAuth
 
-// Ensure the API key is set in .env.local
 const API_KEY = process.env.GOOGLE_API_KEY;
+if (!API_KEY) throw new Error("GOOGLE_API_KEY is not set");
 
-if (!API_KEY) {
-  throw new Error("GOOGLE_API_KEY is not set in .env.local");
-}
-
-// Initialize the Google AI client
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Get the user's token from the Authorization header
+    // 1. Verify user
     const authorization = req.headers.get("Authorization");
-    if (!authorization || !authorization.startsWith("Bearer ")) {
-      return NextResponse.json(
-        { error: "Unauthorized: No token provided" },
-        { status: 401 }
-      );
+    if (!authorization?.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const token = authorization.split("Bearer ")[1];
+    await adminAuth.verifyIdToken(token);
 
-    // 2. Verify the token with Firebase Admin
-    try {
-      await adminAuth.verifyIdToken(token);
-      // You could get user details from the decodedToken if needed
-    } catch (error) {
-      console.error("Token verification error:", error);
-      return NextResponse.json(
-        { error: "Unauthorized: Invalid token" },
-        { status: 401 }
-      );
-    }
-
-    // 3. Get the prompt from the client
+    // 2. Get prompt
     const { prompt } = await req.json();
-
     if (!prompt) {
       return NextResponse.json(
         { error: "Prompt is required" },
@@ -47,12 +27,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Call the Gemini model
+    // 3. Call Gemini
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
 
-    // 5. Send the response back to the client
+    // 4. Send response
     return NextResponse.json({
       text,
     });
