@@ -38,14 +38,15 @@ import aiBrainAnimation from "@/assets/animations/live_chatbot.json";
 export default function AuthPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    // Re-usable helper to clear form state
     const onTabChange = () => {
         setEmail("");
         setPassword("");
+        setConfirmPassword("");
         setError(null);
     };
 
@@ -117,7 +118,7 @@ export default function AuthPage() {
                             <form onSubmit={handleEmailPasswordLogin}>
                                 <CardHeader>
                                     <CardTitle>Login</CardTitle>
-                                    <CardDescription>
+                                    <CardDescription className="mb-1">
                                         Welcome back! Please login to your account.
                                     </CardDescription>
                                 </CardHeader>
@@ -169,13 +170,12 @@ export default function AuthPage() {
                         </Card>
                     </TabsContent>
 
-                    {/* Sign Up Tab */}
                     <TabsContent value="signup">
                         <Card>
                             <form onSubmit={handleEmailPasswordSignUp}>
                                 <CardHeader>
                                     <CardTitle>Sign Up</CardTitle>
-                                    <CardDescription>
+                                    <CardDescription className="mb-1">
                                         Create an account to get started with AI Forge.
                                     </CardDescription>
                                 </CardHeader>
@@ -199,6 +199,18 @@ export default function AuthPage() {
                                             type="password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
+                                            minLength={6}
+                                            required
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                                        <Input
+                                            id="signup-confirm-password"
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
                                             minLength={6}
                                             required
                                             disabled={loading}

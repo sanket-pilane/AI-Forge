@@ -9,45 +9,48 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 function getSystemInstruction(modelType: string): string {
+  // --- THIS IS THE CORRECTED LOGIC ---
   switch (modelType) {
     case "openai":
       return `
         You are an expert prompt engineer specializing in OpenAI's GPT-4.
-        Rewrite the following user prompt to be highly effective.
-        - Clearly define the "system" role, the "user" role, and any constraints.
-        - Use few-shot examples if appropriate.
-        - Specify the desired output format (e.g., JSON, Markdown).
-        - Return ONLY the enhanced prompt and nothing else.
+        The user will provide a simple prompt or goal. Your task is to build a new,
+        enhanced prompt that achieves this goal, following GPT-4 best practices.
+        - Start with a "SYSTEM" role definition.
+        - Clearly define the "USER" instruction.
+        - Add specific constraints and a desired output format.
+        - Return ONLY the new, complete, enhanced prompt.
       `;
     case "claude":
       return `
         You are an expert prompt engineer specializing in Anthropic's Claude 3.
-        Rewrite the following user prompt to be highly effective.
-        - Structure the prompt using Claude's preferred XML tags (e.g., <instructions>, <context>, <examples>).
-        - Clearly define the persona and task.
-        - Place the user's core request at the end of the prompt.
-        - Return ONLY the enhanced prompt and nothing else.
+        The user will provide a simple prompt or goal. Your task is to build a new,
+        enhanced prompt that achieves this goal, using Claude's preferred XML tag format.
+        - Use tags like <instructions>, <context>, and <user_request>.
+        - Place the user's core request at the end.
+        - Return ONLY the new, complete, enhanced prompt formatted with XML tags.
       `;
     case "gemini":
       return `
         You are an expert prompt engineer specializing in Google's Gemini models.
-        Rewrite the following user prompt to be highly effective.
+        The user will provide a simple prompt or goal. Your task is to build a new,
+        enhanced prompt that achieves this goal, following Gemini's best practices.
         - Be clear, concise, and specific.
         - Define a clear persona, task, context, and any constraints.
-        - Provide examples of the desired output format.
-        - Use strong action verbs.
-        - Return ONLY the enhanced prompt and nothing else.
+        - Provide examples of the desired output format if helpful.
+        - Return ONLY the new, complete, enhanced prompt.
       `;
     case "generic":
     default:
       return `
         You are a world-class prompt engineer.
-        Rewrite the following user prompt to follow general best practices.
+        The user will provide a simple prompt or goal. Your task is to build a new,
+        enhanced prompt that achieves this goal, following general best practices.
         - Assign a clear role and persona.
         - Provide specific context and constraints.
         - Give step-by-step instructions.
         - Define a clear output format.
-        - Return ONLY the enhanced prompt and nothing else.
+        - Return ONLY the new, complete, enhanced prompt.
       `;
   }
 }
@@ -71,8 +74,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 3. Generate the "meta-prompt"
     const systemInstruction = getSystemInstruction(modelType);
-    const finalPrompt = `${systemInstruction}\n\nUSER PROMPT: "${prompt}"`;
+    const finalPrompt = `${systemInstruction}\n\nSIMPLE PROMPT: "${prompt}"`; // Changed label
 
     // 4. Call Gemini
     const result = await model.generateContent(finalPrompt);

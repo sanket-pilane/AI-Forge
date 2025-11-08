@@ -122,7 +122,6 @@ export default function CodePage() {
         navigator.clipboard.writeText(codeToCopy).then(() => {
             setIsCopied(true);
             setTimeout(() => setIsCopied(false), 2000);
-            // 3. Use the new toast.success function
             toast.success("Copied to clipboard!");
         });
     };
@@ -130,7 +129,7 @@ export default function CodePage() {
     return (
         <div className="flex h-full flex-col">
             <ScrollArea className="flex-1 overflow-hidden w-full px-2.5">
-                <div className="py-4 px-2.5 flex flex-col gap-8 pb-4 max-w-5xl w-full mx-auto">
+                <div className="py-4 px-2.5 flex flex-col gap-8 pb-4 max-w-auto w-full mx-auto">
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold">Code Generator</h1>

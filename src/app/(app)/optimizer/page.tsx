@@ -15,6 +15,8 @@ import { Clipboard, Check, Loader2, Wand2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type ModelType = "gemini" | "openai" | "claude" | "generic";
 
@@ -71,7 +73,7 @@ export default function OptimizerPage() {
     return (
         <div className="flex h-full flex-col">
             <ScrollArea className="flex-1 pr-4 overflow-hidden">
-                <div className="space-y-8 pb-4">
+                <div className="space-y-8">
                     <div>
                         <h1 className="text-3xl font-bold">Prompt Optimizer</h1>
                         <p className="text-muted-foreground">
@@ -137,11 +139,17 @@ export default function OptimizerPage() {
                                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                                     </div>
                                 ) : (
-                                    <Textarea
-                                        value={outputPrompt}
-                                        readOnly
-                                        className="min-h-[250px] text-base bg-muted/50"
-                                    />
+                                    <div className="min-h-[250px] text-base bg-muted/50 p-4 rounded">
+                                        {outputPrompt ? (
+                                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                    {outputPrompt}
+                                                </ReactMarkdown>
+                                            </div>
+                                        ) : (
+                                            <p className="text-muted-foreground">No optimized prompt yet.</p>
+                                        )}
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
