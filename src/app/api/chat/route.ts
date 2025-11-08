@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
-import { generateTitle } from "@/lib/gemini-server-utils"; // Import our new util
-import admin from "firebase-admin"; // Import admin for FieldValue
+import { generateTitle } from "@/lib/gemini-server-utils";
+import admin from "firebase-admin";
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 if (!API_KEY) throw new Error("GOOGLE_API_KEY is not set");
@@ -12,7 +12,6 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Verify user
     const authorization = req.headers.get("Authorization");
     if (!authorization?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -21,7 +20,6 @@ export async function POST(req: NextRequest) {
     const decodedToken = await adminAuth.verifyIdToken(token);
     const userId = decodedToken.uid;
 
-    // 2. Get prompt and optional chatId
     const { prompt, chatId } = await req.json();
     if (!prompt) {
       return NextResponse.json(
@@ -30,18 +28,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Generate chat response
     const userMessage = { role: "user", text: prompt };
     const result = await model.generateContent(prompt);
     const modelMessage = { role: "model", text: result.response.text() };
 
     let currentChatId = chatId;
-    const timestamp = admin.firestore.FieldValue.serverTimestamp(); // Correct admin syntax
+    const timestamp = admin.firestore.FieldValue.serverTimestamp();
 
-    // 4. Save to Firestore using the Admin SDK
     if (!currentChatId) {
-      // --- Create new chat ---
-      // adminDb is the Admin Firestore instance; use collection/doc chaining
       const newChatRef = adminDb
         .collection("users")
         .doc(userId)

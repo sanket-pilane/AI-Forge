@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
-import { generateTitle } from "@/lib/gemini-server-utils"; // Import our title util
-import admin from "firebase-admin"; // Import admin for FieldValue
+import { generateTitle } from "@/lib/gemini-server-utils";
+import admin from "firebase-admin";
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 if (!API_KEY) throw new Error("GOOGLE_API_KEY is not set");
