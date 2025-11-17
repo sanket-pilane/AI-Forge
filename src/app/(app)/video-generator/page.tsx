@@ -30,9 +30,9 @@ export default function ImageGeneratorPage() {
                 <div className="py-4 px-2.5 flex flex-col gap-8 pb-4 max-w-auto w-full mx-auto">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold">Image Generator</h1>
+                            <h1 className="text-3xl font-bold">Video Generator</h1>
                             <p className="text-muted-foreground">
-                                Create stunning Image from a text prompt.
+                                Create stunning Vidoes from a text prompt.
                             </p>
                         </div>
                     </div>
@@ -50,7 +50,7 @@ export default function ImageGeneratorPage() {
                             />
                             <Button onClick={handleGenerate}>
                                 <ImageIcon className="mr-2 h-4 w-4" />
-                                Generate Image
+                                Generate Video
                             </Button>
                         </CardContent>
                     </Card>

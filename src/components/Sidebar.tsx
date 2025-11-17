@@ -1,3 +1,4 @@
+// src/components/Sidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -14,19 +15,24 @@ import {
     Code,
     Image as ImageIcon,
     Settings,
+    Video,
     Bot,
     Wand2,
     SquarePen,
+    Music, // <-- 1. IMPORT MUSIC ICON
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Define our navigation items
+// --- 2. UPDATE THE NAV ITEMS LIST ---
 const navItems = [
     { name: "Chat", href: "/chat", icon: MessageSquare },
     { name: "Code", "href": "/code", icon: Code },
-    { name: "Image Analyzer", href: "/image", icon: ImageIcon },
-    { name: "Prompt Optimizer", href: "/optimizer", icon: Wand2 },
+    { name: "Image Generation", href: "/image", icon: ImageIcon }, // <-- NEW
+    { name: "Music Generation", href: "/music-generator", icon: Music }, // <-- NEW
+    { name: "Video Generation", href: "/video-generator", icon: Video },
+
 ];
+// --- END OF UPDATES ---
 
 interface SidebarProps {
     isCollapsed: boolean;
@@ -55,12 +61,13 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                 isCollapsed ? "opacity-0 w-0" : "opacity-100"
                             )}
                         >
-                            AI Forge
+                            Brainwave
                         </span>
                     </Link>
                 </div>
 
-                {/* New Chat Button */}
+
+
                 <div className="p-4">
                     <Tooltip delayDuration={0}>
                         <TooltipTrigger asChild>

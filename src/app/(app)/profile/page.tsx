@@ -244,7 +244,7 @@ export default function ProfilePage() {
                     <Card>
                         <CardHeader>
                             <CardTitle>Usage Summary</CardTitle>
-                            <CardDescription>Your activity across AI Forge.</CardDescription>
+                            <CardDescription>Your activity across Brainwave.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {isStatsLoading ? (

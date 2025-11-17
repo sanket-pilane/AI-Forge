@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner"; // <-- 1. Import from sonner
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI Forge",
+  title: "Brainwave",
   description: "Generate chat, code, and images.",
 };
 

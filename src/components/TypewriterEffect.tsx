@@ -10,6 +10,7 @@ export function TypewriterEffect() {
                     "Generate chat.",
                     "Generate code.",
                     "Generate images.",
+                    "Generate Videos.",
                     "Your personal workshop for creation.",
                 ],
                 autoStart: true,

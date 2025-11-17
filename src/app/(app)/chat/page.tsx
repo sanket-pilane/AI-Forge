@@ -1,3 +1,4 @@
+// src/app/(app)/chat/page.tsx
 "use client";
 
 import { useState, useRef, useEffect, FormEvent } from "react";
@@ -22,8 +23,9 @@ import ReactMarkdown from "react-markdown";
 import { HistoryMenu } from "@/components/HistoryMenu";
 import remarkGfm from "remark-gfm";
 import { motion } from "framer-motion";
-import Lottie from "lottie-react"; // <-- 1. IMPORT LOTTIE
-import emptyAnimation from "@/assets/animations/empty.json"; // <-- 2. IMPORT ANIMATION
+import Lottie from "lottie-react";
+import emptyAnimation from "@/assets/animations/empty.json";
+import { toast } from "sonner"; // <-- 1. IMPORT TOAST
 
 // Define the shape of a message
 type Message = {
@@ -46,8 +48,6 @@ export default function ChatPage() {
 
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-    // --- Your existing functions (scrollToBottom, useEffects, handleSubmit) ---
-    // ... (no changes needed to these functions) ...
     const scrollToBottom = () => {
         if (!scrollAreaRef.current) return;
         const viewport = scrollAreaRef.current.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
@@ -99,52 +99,18 @@ export default function ChatPage() {
         }
     }, [searchParams, user, router, currentChatId]);
 
+    // --- 2. MODIFY handleSubmit ---
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!input.trim() || !user) return;
 
-        const userMessage: Message = { role: "user", text: input };
-        setMessages((prev) => [...prev, userMessage]);
-        setTimeout(() => scrollToBottom(), 50);
-        const currentInput = input;
-        setInput("");
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const token = await user.getIdToken();
-            // Call the smart API
-            const res = await fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ prompt: currentInput, chatId: currentChatId }),
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || "Something went wrong");
-            }
-
-            const data = await res.json();
-            const modelMessage: Message = { role: "model", text: data.text };
-
-            // We just update the UI state. The server handled all saving.
-            setMessages((prev) => [...prev, modelMessage]);
-
-            if (data.chatId && !currentChatId) {
-                setCurrentChatId(data.chatId);
-                router.push(`/chat?id=${data.chatId}`, { scroll: false });
-            }
-        } catch (err: any) {
-            setError(err.message);
-            setMessages((prev) => prev.filter((msg) => msg.text !== currentInput));
-        } finally {
-            setIsLoading(false);
-        }
+        // --- THIS IS THE DEMO CHANGE ---
+        toast.info("This feature will be coming soon!");
+        setInput(""); // Clear the input
+        // We no longer set loading or update messages
+        // --- END OF DEMO CHANGE ---
     };
+    // --- END OF MODIFICATION ---
 
     return (
         <div className="flex h-full flex-col">
@@ -156,7 +122,6 @@ export default function ChatPage() {
             <ScrollArea className="flex-1 pr-4 overflow-hidden" ref={scrollAreaRef}>
                 <div className="flex flex-col gap-4 pb-4">
 
-                    {/* --- 3. UPDATED RENDER LOGIC --- */}
                     {isHistoryLoading ? (
                         <div className="flex justify-center items-center h-32">
                             <Loader2 className="h-8 w-8 animate-spin" />
@@ -228,18 +193,6 @@ export default function ChatPage() {
                                 </motion.div>
                             ))}
 
-                            {/* Loading (Typing) Indicator */}
-                            {isLoading && (
-                                <div className="flex items-start gap-3">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
-                                    </Avatar>
-                                    <div className="bg-muted rounded-lg p-3">
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                    </div>
-                                </div>
-                            )}
-
                             {/* Error Message */}
                             {error && (
                                 <div className="flex justify-start">
@@ -250,7 +203,6 @@ export default function ChatPage() {
                             )}
                         </>
                     )}
-                    {/* --- END OF UPDATED LOGIC --- */}
                 </div>
             </ScrollArea>
 

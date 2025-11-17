@@ -176,7 +176,7 @@ export default function AuthPage() {
                                 <CardHeader>
                                     <CardTitle>Sign Up</CardTitle>
                                     <CardDescription className="mb-1">
-                                        Create an account to get started with AI Forge.
+                                        Create an account to get started with Brainwave.
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -249,7 +249,7 @@ export default function AuthPage() {
                     className="w-2/3 max-w-sm"
                 />
                 <div className="flex items-center gap-2 mt-4">
-                    <h1 className="text-3xl font-bold">AI Forge</h1>
+                    <h1 className="text-3xl font-bold">Brainwave</h1>
                 </div>
                 <div className="mt-4 text-center text-lg text-muted-foreground">
                     <TypewriterEffect />
