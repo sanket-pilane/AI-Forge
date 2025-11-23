@@ -22,6 +22,7 @@ import {
     collection,
     serverTimestamp,
 } from "firebase/firestore";
+import { TypingIndicator } from "@/components/ui/typing-indicator";
 
 export default function ImageAnalyzerPage() {
     const [prompt, setPrompt] = useState("");
@@ -210,7 +211,7 @@ export default function ImageAnalyzerPage() {
                             <CardContent>
                                 {(isLoading || isHistoryLoading) && (
                                     <div className="flex justify-center py-10">
-                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                        <TypingIndicator />
                                     </div>
                                 )}
                                 {/* Show result if it exists and we aren't loading */}

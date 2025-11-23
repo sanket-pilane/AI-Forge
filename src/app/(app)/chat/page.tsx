@@ -24,6 +24,7 @@ import remarkGfm from "remark-gfm";
 import { motion } from "framer-motion";
 import Lottie from "lottie-react"; // <-- 1. IMPORT LOTTIE
 import emptyAnimation from "@/assets/animations/empty.json"; // <-- 2. IMPORT ANIMATION
+import { TypingIndicator } from "@/components/ui/typing-indicator";
 
 // Define the shape of a message
 type Message = {
@@ -234,9 +235,7 @@ export default function ChatPage() {
                                     <Avatar className="h-8 w-8">
                                         <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
                                     </Avatar>
-                                    <div className="bg-muted rounded-lg p-3">
-                                        <Loader2 className="h-5 w-5 animate-spin" />
-                                    </div>
+                                    <TypingIndicator />
                                 </div>
                             )}
 
