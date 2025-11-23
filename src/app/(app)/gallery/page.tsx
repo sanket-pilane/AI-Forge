@@ -6,16 +6,22 @@ import { PromptCard } from "@/components/gallery/PromptCard";
 import { FilterBar } from "@/components/gallery/FilterBar";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 export default function GalleryPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
 
-    // Extract unique categories and models
-    const categories = useMemo(() => Array.from(new Set(prompts.map((p) => p.category))), []);
-    const models = useMemo(() => Array.from(new Set(prompts.map((p) => p.model))), []);
+    // Extract unique categories & models
+    const categories = useMemo(
+        () => Array.from(new Set(prompts.map((p) => p.category))),
+        []
+    );
+
+    const models = useMemo(
+        () => Array.from(new Set(prompts.map((p) => p.model))),
+        []
+    );
 
     // Filter prompts
     const filteredPrompts = useMemo(() => {
@@ -23,6 +29,7 @@ export default function GalleryPage() {
             const matchesSearch =
                 prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 prompt.prompt_text.toLowerCase().includes(searchQuery.toLowerCase());
+
             const matchesCategory = selectedCategory ? prompt.category === selectedCategory : true;
             const matchesModel = selectedModel ? prompt.model === selectedModel : true;
 
@@ -31,8 +38,6 @@ export default function GalleryPage() {
     }, [searchQuery, selectedCategory, selectedModel]);
 
     return (
-
-
         <div className="flex h-full flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto">
                 <div className="container mx-auto py-6 px-4 md:px-6 max-w-7xl space-y-6">
@@ -45,6 +50,7 @@ export default function GalleryPage() {
                                 Discover and copy curated AI prompts for your next project.
                             </p>
                         </div>
+
                         <div className="relative w-full md:w-96">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
@@ -66,14 +72,13 @@ export default function GalleryPage() {
                         onSelectModel={setSelectedModel}
                     />
 
-                    {/* Grid */}
+
                     {filteredPrompts.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-10">
+                        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 pb-10">
                             {filteredPrompts.map((prompt) => (
-                                <PromptCard
-                                    key={prompt.id}
-                                    prompt={prompt}
-                                />
+                                <div key={prompt.id} className="break-inside-avoid mb-6">
+                                    <PromptCard prompt={prompt} />
+                                </div>
                             ))}
                         </div>
                     ) : (
@@ -89,7 +94,6 @@ export default function GalleryPage() {
                     )}
                 </div>
             </div>
-
-        </div >
+        </div>
     );
 }
