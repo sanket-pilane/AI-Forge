@@ -45,11 +45,11 @@ graph TD
     end
 
     subgraph Backend [API Routes]
-        ChatAPI[/api/chat]
-        CodeAPI[/api/code]
-        ImageAPI[/api/image]
-        OptimizeAPI[/api/optimize-prompt]
-        StatsAPI[/api/user-stats]
+        ChatAPI(["/api/chat"])
+        CodeAPI(["/api/code"])
+        ImageAPI(["/api/image"])
+        OptimizeAPI(["/api/optimize-prompt"])
+        StatsAPI(["/api/user-stats"])
     end
 
     subgraph Services [External Services]
@@ -62,10 +62,17 @@ graph TD
     ImagePage -->|POST| ImageAPI
     OptimizerPage -->|POST| OptimizeAPI
     
-    ChatAPI & CodeAPI & ImageAPI -->|Verify Token| Firebase
-    ChatAPI & CodeAPI & ImageAPI -->|Generate| Gemini
+    %% FIXED — individually connect nodes
+    ChatAPI -->|Verify Token| Firebase
+    CodeAPI -->|Verify Token| Firebase
+    ImageAPI -->|Verify Token| Firebase
     
-    GalleryPage -->|Reads| LocalData[src/lib/prompt.ts]
+    ChatAPI -->|Generate| Gemini
+    CodeAPI -->|Generate| Gemini
+    ImageAPI -->|Generate| Gemini
+    
+    GalleryPage -->|Reads| LocalData["src/lib/prompt.ts"]
+
 ```
 
 ## 🛠️ Tech Stack
