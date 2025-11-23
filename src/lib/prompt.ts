@@ -19,7 +19,7 @@ export const prompts: Prompt[] = [
     model: "Midjourney v6.0",
     type: "Image",
     category: "Photography",
-    image_url: "https://images.unsplash.com/photo-1605218427368-35b019b8a394?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1550992350-0937a44f23b7?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Cinematic shot, medium close-up of a rugged cybernetic detective standing in rain-slicked neon streets of Neo-Tokyo, glowing holographic advertisements reflecting in puddles, atmospheric fog, moody lighting, cyan and magenta color palette, 8k resolution, photorealistic texture.",
     negative_prompt: "cartoon, anime, 3d render, low quality, blurry, deformed text, bad anatomy, extra fingers",
     parameters: {
@@ -36,7 +36,7 @@ export const prompts: Prompt[] = [
     model: "ChatGPT-4",
     type: "Text",
     category: "Writing",
-    image_url: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1543269865-cbe426464245?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Act as a professional copywriter and personal branding expert. Write a compelling LinkedIn 'About' section for a [Job Title] with [Number] years of experience in [Industry]. Highlights include: [Key Achievement 1], [Key Achievement 2], and [Key Skill]. The tone should be professional yet approachable, using active voice and bullet points for readability. Include a call to action at the end.",
     negative_prompt: null,
     parameters: {
@@ -52,7 +52,7 @@ export const prompts: Prompt[] = [
     model: "DALL-E 3",
     type: "Image",
     category: "Logo Design",
-    image_url: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1582006575196-b072488820f4?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A minimalist vector logo design for a coffee shop named 'Luna Brew'. The icon should combine a crescent moon and a coffee bean. Flat design, solid black lines on a white background, no shading, clean geometry, paul rand style.",
     negative_prompt: "photorealistic, complex details, shading, gradients, text, 3d",
     parameters: {
@@ -68,7 +68,7 @@ export const prompts: Prompt[] = [
     model: "Flux.1",
     type: "Image",
     category: "Photography",
-    image_url: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1563282216-56a9089201a0?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Top-down view of a gourmet artisanal pizza with fresh basil, buffalo mozzarella, and blistered crust on a rustic wooden table. Natural sunlight streaming from the side creating hard shadows, 85mm lens, f/1.8, food photography magazine quality, vibrant colors, steam rising.",
     negative_prompt: "plastic, fake, oversaturated, blurry, noise, illustration",
     parameters: {
@@ -84,7 +84,7 @@ export const prompts: Prompt[] = [
     model: "Runway Gen-2",
     type: "Video",
     category: "Cinematography",
-    image_url: "https://images.unsplash.com/photo-1476610182048-b716b8518aae?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1505374829377-5264b306b3a0?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Low angle drone shot flying fast over moss-covered volcanic rocks and a glacial river in Iceland, moody overcast sky, cinematic motion blur, 4k, high production value.",
     negative_prompt: "static, shaky camera, warped landscape, artifacts",
     parameters: {
@@ -100,7 +100,7 @@ export const prompts: Prompt[] = [
     model: "Midjourney v6.0",
     type: "Image",
     category: "3D Art",
-    image_url: "https://images.unsplash.com/photo-1526304640152-d4619684e484?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1617192620785-5b4819d273a7?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Isometric view of a cozy gamer bedroom, soft pastel color palette, floating objects, blender 3d style, clay render, high detail, warm lighting, potted plants, pc setup with multiple monitors.",
     negative_prompt: "photorealistic, gritty, dark, messy",
     parameters: {
@@ -116,7 +116,7 @@ export const prompts: Prompt[] = [
     model: "Claude 3.5 Sonnet",
     type: "Text",
     category: "Coding",
-    image_url: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1542385150-59f074d4361c?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Write a Python script using pandas and matplotlib to create a dual-axis chart. The left axis should plot 'Revenue' as a bar chart, and the right axis should plot 'Profit Margin' as a line chart. Use a dark theme for the plot styling. Include comments explaining the code.",
     negative_prompt: null,
     parameters: {
@@ -132,7 +132,7 @@ export const prompts: Prompt[] = [
     model: "Niji Journey v6",
     type: "Image",
     category: "Anime",
-    image_url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1549491689-53e7f41459a0?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A rolling green meadow with fluffy white clouds in a bright blue sky, a small cottage in the distance, wind blowing through tall grass, Studio Ghibli art style, hand-painted texture, vibrant greens and blues, summer vibes.",
     negative_prompt: "3d, photorealistic, dark, ominous, low resolution",
     parameters: {
@@ -148,7 +148,7 @@ export const prompts: Prompt[] = [
     model: "Stable Diffusion XL",
     type: "Image",
     category: "Fine Art",
-    image_url: "https://images.unsplash.com/photo-1596707328678-75276c26b52a?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1599818817478-f078235e2361?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A hyper-detailed oil painting of a woman in Renaissance attire, Vermeer lighting, chiaroscuro, high contrast, smooth blending, painted on canvas, high resolution.",
     negative_prompt: "modern, digital art, blurry, cartoon, signature, text, ugly",
     parameters: {
@@ -164,7 +164,7 @@ export const prompts: Prompt[] = [
     model: "Gemini 2.5 Flash",
     type: "Text",
     category: "Marketing",
-    image_url: "https://images.unsplash.com/photo-1557832694-ec2030f02ac6?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1556742511-b0e50f5a7707?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Generate 5 subject lines for an A/B test campaign announcing a 20% off flash sale on all software licenses. Subject lines must use urgency and curiosity. Example: [Software Name] Flash Sale: 20% Off!",
     negative_prompt: null,
     parameters: {
@@ -180,7 +180,7 @@ export const prompts: Prompt[] = [
     model: "Midjourney v6.0",
     type: "Image",
     category: "Architecture",
-    image_url: "https://images.unsplash.com/photo-1628795116790-264663d294ef?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1596495578765-a8775b87168d?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Detailed 3D architectural blueprint rendering of a sustainable, vertical futuristic city, high angle, blueprint lines on vellum paper, isometric, clean and precise, in the style of Syd Mead.",
     negative_prompt: "photorealistic, messy, wires, dirt, low quality, color",
     parameters: {
@@ -196,7 +196,7 @@ export const prompts: Prompt[] = [
     model: "Pika Labs",
     type: "Video",
     category: "Animation",
-    image_url: "https://images.unsplash.com/photo-1549491689-53e7f41459a0?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1516544078832-fb910408544e?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A loose, charcoal sketch of a lonely lighthouse on a rocky coast transitioning into a fully animated scene with rough waves and a storm. Hand-drawn animation style, subtle movement.",
     negative_prompt: "perfect lines, 3D, CGI, stable camera, high detail",
     parameters: {
@@ -212,7 +212,7 @@ export const prompts: Prompt[] = [
     model: "Claude 3 Opus",
     type: "Text",
     category: "Business",
-    image_url: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1628796853526-9d3e8e12d46e?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Summarize the following 10,000-word Term Sheet into 5 key bullet points for a non-legal audience. Focus only on financial obligations and termination clauses, maintaining objective tone.",
     negative_prompt: null,
     parameters: {
@@ -228,7 +228,7 @@ export const prompts: Prompt[] = [
     model: "DALL-E 3",
     type: "Image",
     category: "Illustration",
-    image_url: "https://images.unsplash.com/photo-1574765799971-d603e918c5e3?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1554580004-633e7d69d273?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A cheerful red fox wearing spectacles reading a book under a giant glowing mushroom, watercolor illustration style, soft colors, high detail, happy, perfect for a children's book.",
     negative_prompt: "dark, scary, photorealistic, blurry, text, borders",
     parameters: {
@@ -244,7 +244,7 @@ export const prompts: Prompt[] = [
     model: "Stable Diffusion XL",
     type: "Image",
     category: "Wallpaper",
-    image_url: "https://images.unsplash.com/photo-1563729784307-a36c92d508e6?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1533617300407-28d88e003c27?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Abstract geometric pattern wallpaper, subtle gradient of navy blue to deep violet, matte finish, minimalist, 4k desktop resolution, seamless pattern.",
     negative_prompt: "busy, complex, objects, texture, photography, noise",
     parameters: {
@@ -276,7 +276,7 @@ export const prompts: Prompt[] = [
     model: "Midjourney v6.0",
     type: "Image",
     category: "Abstract",
-    image_url: "https://images.unsplash.com/photo-1582260654060-6e4f34608779?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1627963385078-43d526733220?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Extreme macro shot of liquid mercury reflecting rainbow light on a polished black surface, shallow depth of field, high-speed photography, highly detailed, vibrant colors, close-up.",
     negative_prompt: "realistic objects, low contrast, dull colors, human figures, text",
     parameters: {
@@ -292,7 +292,7 @@ export const prompts: Prompt[] = [
     model: "Gemini 2.5 Flash",
     type: "Text",
     category: "Coding",
-    image_url: "https://images.unsplash.com/photo-1582260654060-6e4f34608779?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1627963385078-43d526733220?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Create a template for giving constructive code review feedback. The template should include sections for 'High-Priority Issues', 'Minor Suggestions (Style)', and 'Positive Feedback'. Use markdown formatting.",
     negative_prompt: null,
     parameters: {
@@ -308,7 +308,7 @@ export const prompts: Prompt[] = [
     model: "Runway Gen-2",
     type: "Video",
     category: "Science",
-    image_url: "https://images.unsplash.com/photo-1502476562095-2c815349e217?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1456952763789-9a25b39e6a0a?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A dramatic, accelerated time-lapse of a massive mountain range rising out of the earth's crust, cinematic camera movement, geological scale, rough textures, earth tones, high detail.",
     negative_prompt: "animals, structures, cartoon, slow motion, blurry",
     parameters: {
@@ -324,7 +324,7 @@ export const prompts: Prompt[] = [
     model: "DALL-E 3",
     type: "Image",
     category: "Design",
-    image_url: "https://images.unsplash.com/photo-1629817926710-18e4c70d306b?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1628045931296-e2608466810a?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A vintage 1950s travel poster advertising a trip to Mars. Bold typography, stark red and orange color palette, stylized rocket ship landing near a dome city. Retro art style, silkscreen effect.",
     negative_prompt: "modern graphics, high-res photography, blurry, text errors, low detail",
     parameters: {
@@ -356,7 +356,7 @@ export const prompts: Prompt[] = [
     model: "ChatGPT-4",
     type: "Text",
     category: "Marketing",
-    image_url: "https://images.unsplash.com/photo-1531545514256-4299b95982e0?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1622345598816-c73d2f25603b?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Generate a comprehensive, 15-point outline for a blog post titled 'The Ultimate Guide to Remote Work Productivity'. Include a strong introduction, three main sections, and a conclusion with a call to action. Target keyword: 'Remote Productivity Hacks'.",
     negative_prompt: null,
     parameters: {
@@ -372,7 +372,7 @@ export const prompts: Prompt[] = [
     model: "Stable Diffusion XL",
     type: "Image",
     category: "Concept Art",
-    image_url: "https://images.unsplash.com/photo-1622345598816-c73d2f25603b?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1563200927-46603a152342?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Industrial spaceship concept art, asymmetrical design, heavy weathering, dark metal plating, in orbit above a gas giant, dramatic lighting, high detail, rule of thirds composition, wide shot.",
     negative_prompt: "multiple ships, colorful, cartoon, blurry, low texture, text",
     parameters: {
@@ -388,7 +388,7 @@ export const prompts: Prompt[] = [
     model: "Claude 3.5 Sonnet",
     type: "Text",
     category: "Productivity",
-    image_url: "https://images.unsplash.com/photo-1557804476-80f2d96924d0?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1505374829377-5264b306b3a0?auto=format&fit=crop&w=600&q=80",
     prompt_text: "Create a 60-minute meeting agenda for a project kickoff meeting. Participants include Engineering, Design, and Product Management. Include time slots for introductions, project scope, success metrics, and next steps, with estimated time for each segment.",
     negative_prompt: null,
     parameters: {
@@ -404,7 +404,7 @@ export const prompts: Prompt[] = [
     model: "Midjourney v6.0",
     type: "Image",
     category: "Illustration",
-    image_url: "https://images.unsplash.com/photo-1596495578765-a8775b87168d?auto=format&fit=crop&w=600&q=80",
+    image_url: "https://images.unsplash.com/photo-1502476562095-2c815349e217?auto=format&fit=crop&w=600&q=80",
     prompt_text: "A delicate watercolor illustration of a single lavender sprig, loose brushstrokes, soft green and purple tones, white background, vintage botanical illustration style, highly detailed.",
     negative_prompt: "oil painting, photorealistic, digital art, text, messy, dark",
     parameters: {
