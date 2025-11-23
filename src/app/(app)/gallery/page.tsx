@@ -6,6 +6,7 @@ import { PromptCard } from "@/components/gallery/PromptCard";
 import { FilterBar } from "@/components/gallery/FilterBar";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 export default function GalleryPage() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +31,8 @@ export default function GalleryPage() {
     }, [searchQuery, selectedCategory, selectedModel]);
 
     return (
+
+
         <div className="flex h-full flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto">
                 <div className="container mx-auto py-6 px-4 md:px-6 max-w-7xl space-y-6">
@@ -86,6 +89,7 @@ export default function GalleryPage() {
                     )}
                 </div>
             </div>
-        </div>
+
+        </div >
     );
 }

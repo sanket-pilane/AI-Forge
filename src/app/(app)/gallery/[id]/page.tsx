@@ -73,76 +73,76 @@ export default function PromptDetailPage() {
 
 
 
-                    <div className="w-full lg:w-2/5 flex-1 lg:h-full lg:flex-none bg-card border-l border-border/40 flex flex-col min-h-0">
+                    {/* Right: Details */}
+                    <div className="w-full lg:w-2/5 h-full bg-card border-l border-border/40 flex flex-col overflow-hidden">
+                        <ScrollArea className="h-full w-full">
+                            <div className="p-6 space-y-8 pb-20">
 
-                        <div className="p-6 space-y-8">
-
-                            {/* Meta Info */}
-                            <div className="space-y-4">
-                                <div className="flex flex-wrap gap-2">
-                                    <Badge variant="secondary" className="text-sm px-3 py-1">{prompt.model}</Badge>
-                                    <Badge variant="outline" className="text-sm px-3 py-1">{prompt.category}</Badge>
-                                    <div className="ml-auto flex items-center gap-1 text-muted-foreground text-sm">
-                                        <Heart className="h-4 w-4 fill-current text-red-500" />
-                                        <span>{prompt.likes}</span>
+                                {/* Meta Info */}
+                                <div className="space-y-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        <Badge variant="secondary" className="text-sm px-3 py-1">{prompt.model}</Badge>
+                                        <Badge variant="outline" className="text-sm px-3 py-1">{prompt.category}</Badge>
+                                        <div className="ml-auto flex items-center gap-1 text-muted-foreground text-sm">
+                                            <Heart className="h-4 w-4 fill-current text-red-500" />
+                                            <span>{prompt.likes}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold leading-tight">{prompt.title}</h2>
+                                        <p className="text-muted-foreground mt-1">By {prompt.author}</p>
                                     </div>
                                 </div>
-                                <div>
-                                    <h2 className="text-2xl font-bold leading-tight">{prompt.title}</h2>
-                                    <p className="text-muted-foreground mt-1">By {prompt.author}</p>
-                                </div>
-                            </div>
 
-                            {/* Master Prompt */}
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">The Master Prompt</h3>
-                                    <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={handleCopy}>
-                                        <Copy className="mr-2 h-3 w-3" /> Copy
+                                {/* Master Prompt */}
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">The Master Prompt</h3>
+                                        <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={handleCopy}>
+                                            <Copy className="mr-2 h-3 w-3" /> Copy
+                                        </Button>
+                                    </div>
+                                    <div className="relative group">
+                                        <div className="bg-muted/50 rounded-lg p-4 text-sm leading-relaxed font-mono border border-border/50">
+                                            {prompt.prompt_text}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Negative Prompt */}
+                                {prompt.negative_prompt && (
+                                    <div className="space-y-3">
+                                        <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Negative Prompt</h3>
+                                        <div className="bg-muted/30 rounded-lg p-4 text-sm text-muted-foreground font-mono border border-border/30">
+                                            {prompt.negative_prompt}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Parameters */}
+                                <div className="space-y-3">
+                                    <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Settings</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {Object.entries(prompt.parameters).map(([key, value]) => (
+                                            <div key={key} className="flex flex-col p-3 rounded-md bg-muted/30 border border-border/30">
+                                                <span className="text-xs text-muted-foreground capitalize mb-1">{key}</span>
+                                                <span className="text-sm font-mono font-medium">{value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    <Button variant="outline" className="w-full" asChild>
+                                        <a href={prompt.image_url} target="_blank" rel="noopener noreferrer" download>
+                                            <Download className="mr-2 h-4 w-4" /> Download Reference Image
+                                        </a>
                                     </Button>
                                 </div>
-                                <div className="relative group">
-                                    <div className="bg-muted/50 rounded-lg p-4 text-sm leading-relaxed font-mono border border-border/50">
-                                        {prompt.prompt_text}
-                                    </div>
-                                </div>
+
                             </div>
-
-                            {/* Negative Prompt */}
-                            {prompt.negative_prompt && (
-                                <div className="space-y-3">
-                                    <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Negative Prompt</h3>
-                                    <div className="bg-muted/30 rounded-lg p-4 text-sm text-muted-foreground font-mono border border-border/30">
-                                        {prompt.negative_prompt}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Parameters */}
-                            <div className="space-y-3">
-                                <h3 className="text-sm font-medium uppercase tracking-wider text-muted-foreground">Settings</h3>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {Object.entries(prompt.parameters).map(([key, value]) => (
-                                        <div key={key} className="flex flex-col p-3 rounded-md bg-muted/30 border border-border/30">
-                                            <span className="text-xs text-muted-foreground capitalize mb-1">{key}</span>
-                                            <span className="text-sm font-mono font-medium">{value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="pt-4">
-                                <Button variant="outline" className="w-full" asChild>
-                                    <a href={prompt.image_url} target="_blank" rel="noopener noreferrer" download>
-                                        <Download className="mr-2 h-4 w-4" /> Download Reference Image
-                                    </a>
-                                </Button>
-                            </div>
-
-                        </div>
-
+                        </ScrollArea>
                     </div>
-
                 </div>
             </div>
         </div >
