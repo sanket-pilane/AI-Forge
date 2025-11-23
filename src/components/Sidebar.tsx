@@ -17,6 +17,7 @@ import {
     Bot,
     Wand2,
     SquarePen,
+    LayoutGrid,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ const navItems = [
     { name: "Chat", href: "/chat", icon: MessageSquare },
     { name: "Code Editor", "href": "/code", icon: Code },
     { name: "Image Analyzer", href: "/image", icon: ImageIcon },
+    { name: "Prompt Gallery", href: "/gallery", icon: LayoutGrid },
     { name: "Prompt Optimizer", href: "/optimizer", icon: Wand2 },
 ];
 
