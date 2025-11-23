@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 // Define our navigation items
 const navItems = [
     { name: "Chat", href: "/chat", icon: MessageSquare },
-    { name: "Code", "href": "/code", icon: Code },
+    { name: "Code Editor", "href": "/code", icon: Code },
     { name: "Image Analyzer", href: "/image", icon: ImageIcon },
     { name: "Prompt Optimizer", href: "/optimizer", icon: Wand2 },
 ];
@@ -47,7 +47,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
 
                 {/* Logo Section */}
                 <div className="flex h-16 items-center border-b border-gray-800 px-6">
-                    <Link href="/" className="flex items-center gap-2 font-semibold">
+                    <Link href="/" className={cn("flex items-center font-semibold", isCollapsed ? "justify-center" : "gap-2")}>
                         <Bot className="h-6 w-6" />
                         <span
                             className={cn(
@@ -78,7 +78,7 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                     <SquarePen className="h-4 w-4" />
                                     <span
                                         className={cn(
-                                            "ml-2 transition-all duration-300 whitespace-nowrap overflow-hidden",
+                                            "transition-all duration-300 whitespace-nowrap overflow-hidden",
                                             isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
                                         )}
                                     >
@@ -112,11 +112,11 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                 >
                                     {/* Link ensures content is flex and centers itself within the button */}
                                     <Link href={item.href} className={cn(linkClasses, isCollapsed ? "justify-center" : "justify-start")}>
-                                        <item.icon className="h-4 w-4" />
+                                        <item.icon className="h-4 w-4 ml-2" />
                                         <span
                                             className={cn(
-                                                "ml-2 transition-all duration-300 whitespace-nowrap overflow-hidden",
-                                                isCollapsed ? "w-0 opacity-0 " : "w-auto opacity-100"
+                                                "transition-all duration-300 whitespace-nowrap overflow-hidden",
+                                                isCollapsed ? "w-0 opacity-0 " : "w-auto opacity-100 ml-2"
                                             )}
                                         >
                                             {item.name}
@@ -151,8 +151,8 @@ export function Sidebar({ isCollapsed }: SidebarProps) {
                                     <Settings className="h-4 w-4" />
                                     <span
                                         className={cn(
-                                            "ml-2 transition-all duration-300 whitespace-nowrap overflow-hidden",
-                                            isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+                                            "transition-all duration-300 whitespace-nowrap overflow-hidden",
+                                            isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100 ml-2"
                                         )}
                                     >
                                         Settings
