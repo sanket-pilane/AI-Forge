@@ -14,14 +14,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { HistoryMenu } from "@/components/HistoryMenu";
-import { db } from "@/lib/firebase";
-import {
-    doc,
-    getDoc,
-    setDoc,
-    collection,
-    serverTimestamp,
-} from "firebase/firestore";
 import { TypingIndicator } from "@/components/ui/typing-indicator";
 
 export default function ImageAnalyzerPage() {
@@ -35,7 +27,6 @@ export default function ImageAnalyzerPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Effect to load history
     useEffect(() => {
         const historyId = searchParams.get("id");
         if (historyId) {
@@ -43,13 +34,15 @@ export default function ImageAnalyzerPage() {
             const fetchHistory = async () => {
                 if (!user) return;
                 try {
-                    const docRef = doc(db, `users/${user.uid}/imageHistory`, historyId);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
+                    const token = await user.getIdToken();
+                    const res = await fetch(`/api/history/${historyId}?type=image`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
                         setPrompt(data.prompt);
                         setAnalysisResult(data.analysisResult);
-                        setImagePreview(null); // History items don't have images
+                        setImagePreview(null);
                         setImageFile(null);
                     } else {
                         toast.error("History not found.");
@@ -63,10 +56,8 @@ export default function ImageAnalyzerPage() {
             };
             fetchHistory();
         } else {
-
             setPrompt("Analyze this image and tell me three key objects...");
             setAnalysisResult("");
-
         }
     }, [searchParams, user, router]);
 
@@ -83,7 +74,6 @@ export default function ImageAnalyzerPage() {
 
             setAnalysisResult("");
 
-
             if (searchParams.get("id")) {
                 router.push("/image", { scroll: false });
             }
@@ -92,7 +82,6 @@ export default function ImageAnalyzerPage() {
 
     const handleAnalyzeImage = async () => {
         if (!imagePreview || !user) {
-            // ... (auth/image checks) ...
             return;
         }
 
@@ -115,21 +104,9 @@ export default function ImageAnalyzerPage() {
             const data = await res.json();
             setAnalysisResult(data.text);
 
-            // Save history WITHOUT the image data
-            const newChatRef = doc(collection(db, `users/${user.uid}/imageHistory`));
-            const title = prompt.length > 40 ? prompt.substring(0, 40) + "..." : "Image Analysis";
-
-            await setDoc(newChatRef, {
-                chatId: newChatRef.id,
-                userId: user.uid,
-                title: title,
-                prompt: prompt,
-                analysisResult: data.text,
-                timestamp: serverTimestamp(),
-                type: "image",
-            });
-
-            router.push(`/image?id=${newChatRef.id}`, { scroll: false });
+            if (data.chatId) {
+                router.push(`/image?id=${data.chatId}`, { scroll: false });
+            }
 
         } catch (error: any) {
             toast.error("Image Analysis Failed", { description: error.message });

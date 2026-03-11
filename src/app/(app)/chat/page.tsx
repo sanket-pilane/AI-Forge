@@ -8,23 +8,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, Send, User as UserIcon, Bot } from "lucide-react";
-import { db } from "@/lib/firebase";
-import {
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    collection,
-    arrayUnion,
-    serverTimestamp,
-} from "firebase/firestore";
 import ReactMarkdown from "react-markdown";
 import { HistoryMenu } from "@/components/HistoryMenu";
 import remarkGfm from "remark-gfm";
 import { motion } from "framer-motion";
-import Lottie from "lottie-react"; // <-- 1. IMPORT LOTTIE
-import emptyAnimation from "@/assets/animations/empty.json"; // <-- 2. IMPORT ANIMATION
+import Lottie from "lottie-react";
+import emptyAnimation from "@/assets/animations/empty.json";
 import { TypingIndicator } from "@/components/ui/typing-indicator";
+
 
 // Define the shape of a message
 type Message = {
@@ -79,10 +70,13 @@ export default function ChatPage() {
             const fetchChatHistory = async () => {
                 if (!user) return;
                 try {
-                    const docRef = doc(db, `users/${user.uid}/chatHistory`, chatIdFromUrl);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        setMessages(docSnap.data().messages);
+                    const token = await user.getIdToken();
+                    const res = await fetch(`/api/history/${chatIdFromUrl}?type=chat`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        setMessages(data.messages);
                     } else {
                         setError("Chat not found.");
                         router.push("/chat");

@@ -3,17 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { db } from "@/lib/firebase";
-import {
-    collection,
-    query,
-    orderBy,
-    getDocs,
-    Timestamp,
-    doc,
-    updateDoc,
-    deleteDoc,
-} from "firebase/firestore";
 import {
     Select,
     SelectContent,
@@ -24,24 +13,17 @@ import {
 import { Loader2, Pencil, Trash2, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Lottie from "lottie-react";
-import deleteAnim from "@/assets/animations/empty.json"; // 👈 place your Lottie file here
+import deleteAnim from "@/assets/animations/empty.json";
 
 type HistoryItem = {
     id: string;
     chatId: string;
     title: string;
     type: "chat" | "code" | "image";
-    timestamp: Timestamp;
-};
-
-const historyCollectionMap = {
-    chat: "chatHistory",
-    code: "codeHistory",
-    image: "imageHistory",
+    timestamp: string | null;
 };
 
 export default function HistoryPage() {
@@ -61,7 +43,7 @@ export default function HistoryPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [newTitle, setNewTitle] = useState("");
-    const [deleteDialog, setDeleteDialog] = useState<HistoryItem | null>(null); // 👈 for delete confirmation
+    const [deleteDialog, setDeleteDialog] = useState<HistoryItem | null>(null);
 
     useEffect(() => {
         if (!user) return;
@@ -69,19 +51,17 @@ export default function HistoryPage() {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const collectionName = historyCollectionMap[filter];
-                const q = query(
-                    collection(db, `users/${user.uid}/${collectionName}`),
-                    orderBy("timestamp", "desc")
-                );
+                const token = await user.getIdToken();
+                const res = await fetch(`/api/history?type=${filter}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
-                const querySnapshot = await getDocs(q);
-                const items = querySnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                })) as HistoryItem[];
-
-                setHistory(items);
+                if (res.ok) {
+                    const data = await res.json();
+                    setHistory(data.items);
+                } else {
+                    toast.error("Failed to load history.");
+                }
             } catch (error) {
                 console.error("Error fetching history:", error);
                 toast.error("Failed to load history.");
@@ -118,15 +98,25 @@ export default function HistoryPage() {
             return;
         }
 
-        const collectionName = historyCollectionMap[filter];
-        const docRef = doc(db, `users/${user.uid}/${collectionName}`, item.id);
-
         try {
-            await updateDoc(docRef, { title: newTitle });
-            setHistory(
-                history.map((h) => (h.id === item.id ? { ...h, title: newTitle } : h))
-            );
-            toast.success("Title updated!");
+            const token = await user.getIdToken();
+            const res = await fetch(`/api/history/${item.id}?type=${filter}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ title: newTitle }),
+            });
+
+            if (res.ok) {
+                setHistory(
+                    history.map((h) => (h.id === item.id ? { ...h, title: newTitle } : h))
+                );
+                toast.success("Title updated!");
+            } else {
+                toast.error("Failed to update title.");
+            }
         } catch {
             toast.error("Failed to update title.");
         } finally {
@@ -135,19 +125,25 @@ export default function HistoryPage() {
     };
 
     const confirmDelete = (item: HistoryItem) => {
-        setDeleteDialog(item); // 👈 open dialog
+        setDeleteDialog(item);
     };
 
     const handleDeleteConfirmed = async () => {
         if (!user || !deleteDialog) return;
 
-        const collectionName = historyCollectionMap[filter];
-        const docRef = doc(db, `users/${user.uid}/${collectionName}`, deleteDialog.id);
-
         try {
-            await deleteDoc(docRef);
-            setHistory(history.filter((h) => h.id !== deleteDialog.id));
-            toast.success("History deleted.");
+            const token = await user.getIdToken();
+            const res = await fetch(`/api/history/${deleteDialog.id}?type=${filter}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (res.ok) {
+                setHistory(history.filter((h) => h.id !== deleteDialog.id));
+                toast.success("History deleted.");
+            } else {
+                toast.error("Failed to delete history.");
+            }
         } catch {
             toast.error("Failed to delete history.");
         } finally {
@@ -181,7 +177,7 @@ export default function HistoryPage() {
                         <Lottie animationData={deleteAnim} loop className="w-40 h-40" />
                         <h2 className="mt-4 text-lg font-medium text-white">No history yet</h2>
                         <p className="mt-2 text-sm text-zinc-400 text-center max-w-md">
-                            You don't have any saved history yet. Start a chat, generate code, or analyze an image and your history will appear here.
+                            You don&apos;t have any saved history yet. Start a chat, generate code, or analyze an image and your history will appear here.
                         </p>
                     </div>
                 ) : (
@@ -226,12 +222,13 @@ export default function HistoryPage() {
                                             <p className="font-medium text-white truncate max-w-[200px] sm:max-w-[300px]">
                                                 {item.title}
                                             </p>
-
                                         </div>
 
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs text-zinc-500 sm:ml-4">
-                                                {item.timestamp?.toDate().toLocaleDateString()}
+                                                {item.timestamp
+                                                    ? new Date(item.timestamp).toLocaleDateString()
+                                                    : ""}
                                             </span>
                                             <Button
                                                 variant="ghost"
@@ -258,7 +255,6 @@ export default function HistoryPage() {
                 )}
             </ScrollArea>
 
-            {/* 🗑️ Delete Confirmation Dialog */}
             {deleteDialog && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <div className="bg-zinc-900 border border-zinc-700 rounded-xl p-6 w-[90%] max-w-sm shadow-lg">

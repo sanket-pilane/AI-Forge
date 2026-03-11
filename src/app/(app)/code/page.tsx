@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react"; // Import useEffect
-import { useSearchParams, useRouter } from "next/navigation"; // Import hooks
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,18 +13,10 @@ import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coldarkDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { HistoryMenu } from "@/components/HistoryMenu"; // Import HistoryMenu
-import { db } from "@/lib/firebase"; // Import db
-import { // Import firestore functions
-    doc,
-    getDoc,
-    setDoc,
-    collection,
-    serverTimestamp,
-} from "firebase/firestore";
+import { HistoryMenu } from "@/components/HistoryMenu";
 
 export default function CodePage() {
-    const [prompt, setPrompt] = useState(""); // Default empty
+    const [prompt, setPrompt] = useState("");
     const [generatedCode, setGeneratedCode] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isHistoryLoading, setIsHistoryLoading] = useState(false);
@@ -33,7 +25,7 @@ export default function CodePage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const SyntaxHighlighterAny: any = SyntaxHighlighter;
-    // Effect to load history from URL
+
     useEffect(() => {
         const historyId = searchParams.get("id");
         if (historyId) {
@@ -41,10 +33,12 @@ export default function CodePage() {
             const fetchHistory = async () => {
                 if (!user) return;
                 try {
-                    const docRef = doc(db, `users/${user.uid}/codeHistory`, historyId);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
+                    const token = await user.getIdToken();
+                    const res = await fetch(`/api/history/${historyId}?type=code`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
                         setPrompt(data.prompt);
                         setGeneratedCode(data.generatedCode);
                     } else {
@@ -59,7 +53,6 @@ export default function CodePage() {
             };
             fetchHistory();
         } else {
-            // Clear for new generation
             setPrompt("Generate a React functional component for a login form.");
             setGeneratedCode("");
         }
@@ -72,7 +65,7 @@ export default function CodePage() {
         }
 
         setIsLoading(true);
-        setGeneratedCode(""); // Clear old code
+        setGeneratedCode("");
 
         try {
             const token = await user.getIdToken();
@@ -90,22 +83,9 @@ export default function CodePage() {
             const data = await res.json();
             setGeneratedCode(data.code);
 
-            // --- Save NEW history item ---
-            const newChatRef = doc(collection(db, `users/${user.uid}/codeHistory`));
-            const title = prompt.length > 40 ? prompt.substring(0, 40) + "..." : prompt;
-
-            await setDoc(newChatRef, {
-                chatId: newChatRef.id,
-                userId: user.uid,
-                title: title,
-                prompt: prompt,
-                generatedCode: data.code,
-                timestamp: serverTimestamp(),
-                type: "code",
-            });
-
-            // Redirect to the new history URL
-            router.push(`/code?id=${newChatRef.id}`, { scroll: false });
+            if (data.chatId) {
+                router.push(`/code?id=${data.chatId}`, { scroll: false });
+            }
 
         } catch (error: any) {
             toast.error("Code Generation Failed", { description: error.message });

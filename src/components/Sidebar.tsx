@@ -23,11 +23,12 @@ import { cn } from "@/lib/utils";
 
 // Define our navigation items
 const navItems = [
-    { name: "Chat", href: "/chat", icon: MessageSquare },
-    { name: "Code Editor", "href": "/code", icon: Code },
+
     { name: "Image Analyzer", href: "/image", icon: ImageIcon },
     { name: "Prompt Gallery", href: "/gallery", icon: LayoutGrid },
     { name: "Prompt Optimizer", href: "/optimizer", icon: Wand2 },
+    { name: "Chat", href: "/chat", icon: MessageSquare },
+    { name: "Code Editor", "href": "/code", icon: Code },
 ];
 
 interface SidebarProps {

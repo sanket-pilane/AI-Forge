@@ -12,14 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Clock, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { db } from "@/lib/firebase";
-import {
-    collection,
-    query,
-    orderBy,
-    limit,
-    onSnapshot,
-} from "firebase/firestore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -42,40 +34,33 @@ export function HistoryMenu({ type }: HistoryMenuProps) {
         if (!user) return;
 
         setIsLoading(true);
-        const historyCollectionMap = {
-            chat: "chatHistory",
-            code: "codeHistory",
-            image: "imageHistory",
-        };
-        const collectionName = historyCollectionMap[type];
 
-        const q = query(
-            collection(db, `users/${user.uid}/${collectionName}`),
-            orderBy("timestamp", "desc"),
-            limit(4)
-        );
-
-        const unsubscribe = onSnapshot(
-            q,
-            (querySnapshot) => {
-                const items: HistoryItem[] = [];
-                querySnapshot.forEach((doc) => {
-                    items.push({ chatId: doc.id, title: doc.data().title });
+        const fetchHistory = async () => {
+            try {
+                const token = await user.getIdToken();
+                const res = await fetch(`/api/history?type=${type}&limit=4`, {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-                setHistory(items);
-                setIsLoading(false);
-            },
-            (error) => {
+                if (res.ok) {
+                    const data = await res.json();
+                    setHistory(
+                        data.items.map((item: any) => ({
+                            chatId: item.chatId || item.id,
+                            title: item.title,
+                        }))
+                    );
+                }
+            } catch (error) {
                 console.error("Error fetching history:", error);
+            } finally {
                 setIsLoading(false);
             }
-        );
+        };
 
-        return () => unsubscribe(); // Cleanup snapshot listener
+        fetchHistory();
     }, [user, type]);
 
     const handleLoadChat = (id: string) => {
-        // Navigate to the correct page with the chat ID
         router.push(`/${type}?id=${id}`);
     };
 
@@ -102,7 +87,6 @@ export function HistoryMenu({ type }: HistoryMenuProps) {
                             onSelect={() => handleLoadChat(item.chatId)}
                             className="cursor-pointer"
                         >
-                            {/* This span handles the truncation */}
                             <span className="block truncate">{item.title}</span>
                         </DropdownMenuItem>
                     ))
@@ -111,7 +95,6 @@ export function HistoryMenu({ type }: HistoryMenuProps) {
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild className="cursor-pointer">
-                    {/* Updated link to pre-filter the history page */}
                     <Link href={`/history?type=${type}`}>View All History</Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
